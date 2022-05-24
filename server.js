@@ -5,7 +5,7 @@ Utan NPM (inga node_modules, package.json, package-lock.json)
 API:et ska ha följande endpoints:
 OK!     GET /todos - Hämta alla todos
 OK!     GET /todos/:id - Hämta en todo
-POST /todos - Lägg till en todo
+OK!     POST /todos - Lägg till en todo
 PUT /todos/:id - Ändra en Todo (full)
 PATCH /todos/:id - Ändra en todo (partial)
 DELETE /todos/:id - Ta bort en todo
@@ -45,24 +45,29 @@ const app = http.createServer((req, res) => {
   console.log(`${req.method} till url: ${req.url}`);
 
   const items = req.url.split("/");
-  console.log(items)
+  console.log(items);
 
-  if(items[1] === 'todos') {
-      if (req.method === "GET" && items.length === 2) {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-    
-        res.end(JSON.stringify(todos));
-    
-      } else if (req.method === 'GET' && items.length === 3 && items[2]) {
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        const todoIndex = parseInt(items[2] -1 )
-        res.end(JSON.stringify(todos[todoIndex]))
-      }
+  if (req.method === "GET" && items.length === 2) {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
 
+    res.end(JSON.stringify(todos));
+  } else if (req.method === "GET" && items.length === 3 && items[2]) {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    const todoIndex = parseInt(items[2] - 1);
+    res.end(JSON.stringify(todos[todoIndex]));
   }
 
+  if (req.method === "POST" && items[1] === "todos") {
+    req.on("data", (chunk) => {
+      const data = chunk.toString();
+      const newTodo = JSON.parse(data);
+      todos.push(newTodo);
+      res.statusCode = 201;
+      res.end();
+    });
+  }
 
   res.end();
 });
