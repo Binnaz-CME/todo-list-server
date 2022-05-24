@@ -6,7 +6,7 @@ API:et ska ha följande endpoints:
 OK!     GET /todos - Hämta alla todos
 OK!     GET /todos/:id - Hämta en todo
 OK!     POST /todos - Lägg till en todo
-PUT /todos/:id - Ändra en Todo (full)
+OK!     PUT /todos/:id - Ändra en Todo (full)
 PATCH /todos/:id - Ändra en todo (partial)
 DELETE /todos/:id - Ta bort en todo
 API:et ska endast ta emot och skicka data i JSON-format
@@ -50,25 +50,33 @@ const app = http.createServer((req, res) => {
   if (req.method === "GET" && items.length === 2) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-
     res.end(JSON.stringify(todos));
   } else if (req.method === "GET" && items.length === 3 && items[2]) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
     const todoIndex = parseInt(items[2] - 1);
     res.end(JSON.stringify(todos[todoIndex]));
-  }
-
-  if (req.method === "POST" && items[1] === "todos") {
+  } else if (req.method === "POST") {
+    res.statusCode = 201;
+    res.setHeader("Content-Type", "application/json");
     req.on("data", (chunk) => {
-      const data = chunk.toString();
-      const newTodo = JSON.parse(data);
+      const newTodo = JSON.parse(chunk);
       todos.push(newTodo);
-      res.statusCode = 201;
-      res.end();
     });
+    res.end();
+  } else if (req.method === "PUT") {
+    res.statusCode = 201;
+    res.setHeader("Content-Type", "application/json");
+    const id = parseInt(items[2]);
+    const todoIndex = todos.findIndex((todo) => todo.id === id);
+    req.on("data", (chunk) => {
+      const replacementTodo = JSON.parse(chunk);
+      todos[todoIndex] = replacementTodo;
+    });
+    res.end();
+  } else if (req.method === "PATCH") {
+      
   }
-
   res.end();
 });
 
