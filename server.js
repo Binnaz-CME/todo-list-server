@@ -7,9 +7,9 @@ OK!     GET /todos - Hämta alla todos
 OK!     GET /todos/:id - Hämta en todo
 OK!     POST /todos - Lägg till en todo
 OK!     PUT /todos/:id - Ändra en Todo (full)
-PATCH /todos/:id - Ändra en todo (partial)
-DELETE /todos/:id - Ta bort en todo
-API:et ska endast ta emot och skicka data i JSON-format
+OK!     PATCH /todos/:id - Ändra en todo (partial)
+OK!     DELETE /todos/:id - Ta bort en todo
+Ok!     API:et ska endast ta emot och skicka data i JSON-format
 API:et ska lagra och läsa data från en JSON-fil, så att applikationen bibehåller datan vid omstart eller krasch.
 Det ska finnas en tillhörande frontend av valfritt slag (ex. Todo-listen från K1 eller K2)
 För att uppnå Väl Godkänt behöver du implementera minst 4 av följande kriterier:
@@ -23,34 +23,39 @@ API:et ska innehålla en README-fil med tillhörande dokumentation med en lista 
 */
 
 const http = require("http");
+const fs = require("fs");
 
 const port = 4000;
 
-const todos = [
-  {
-    id: 1,
-    todo: "Skapa backend",
-  },
-  {
-    id: 2,
-    todo: "Skapa frontend",
-  },
-  {
-    id: 3,
-    todo: "Sätt ihop allt",
-  },
+let todos = [
+  //   {
+  //     id: 1,
+  //     todo: "Skapa backend",
+  //     // finished: true
+  //   },
+  //   {
+  //     id: 2,
+  //     todo: "Skapa frontend",
+  //   },
+  //   {
+  //     id: 3,
+  //     todo: "Sätt ihop allt",
+  //   },
 ];
 
 const app = http.createServer((req, res) => {
   console.log(`${req.method} till url: ${req.url}`);
 
   const items = req.url.split("/");
-  console.log(items);
 
   if (req.method === "GET" && items.length === 2) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify(todos));
+    fs.readFile("./todos.json", "utf-8", (err, data) => {
+      if (err) throw err;
+      todos = JSON.parse(data);
+      res.end(JSON.stringify(todos));
+    });
   } else if (req.method === "GET" && items.length === 3 && items[2]) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
@@ -62,6 +67,10 @@ const app = http.createServer((req, res) => {
     req.on("data", (chunk) => {
       const newTodo = JSON.parse(chunk);
       todos.push(newTodo);
+      const stringTodos = JSON.stringify(todos);
+      fs.writeFile("./todos.json", stringTodos, (err) => {
+        if (err) throw err;
+      });
     });
     res.end();
   } else if (req.method === "PUT") {
@@ -75,9 +84,36 @@ const app = http.createServer((req, res) => {
     });
     res.end();
   } else if (req.method === "PATCH") {
-      
+    res.setHeader("Content-Type", "application/json");
+    res.statusCode == 200;
+    const id = parseInt(items[2]);
+    const todoIndex = todos.findIndex((todo) => todo.id === id);
+    req.on("data", (chunk) => {
+      const data = JSON.parse(chunk);
+      let todo = todos[todoIndex];
+
+      if (data.todo) {
+        todo.todo = data.todo;
+      }
+
+      //   if (data.finished) {
+      //     todo.finished = data.finished;
+      //   }
+
+      todos[todoIndex] = todo;
+    });
+    res.end();
+  } else if (req.method === "DELETE") {
+    res.setHeader("Content-Type", "application/json");
+    res.statusCode = 204;
+    const id = parseInt(items[2]);
+    todos = todos.filter((todo) => todo.id !== id);
+    res.end();
   }
-  res.end();
+});
+
+app.on("error", (e) => {
+  console.log(`problem with request: ${e}`);
 });
 
 app.listen(port, () => {
