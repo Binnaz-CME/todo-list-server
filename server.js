@@ -10,7 +10,7 @@ OK!     PUT /todos/:id - Ändra en Todo (full)
 OK!     PATCH /todos/:id - Ändra en todo (partial)
 OK!     DELETE /todos/:id - Ta bort en todo
 Ok!     API:et ska endast ta emot och skicka data i JSON-format
-API:et ska lagra och läsa data från en JSON-fil, så att applikationen bibehåller datan vid omstart eller krasch.
+OK!     API:et ska lagra och läsa data från en JSON-fil, så att applikationen bibehåller datan vid omstart eller krasch.
 Det ska finnas en tillhörande frontend av valfritt slag (ex. Todo-listen från K1 eller K2)
 För att uppnå Väl Godkänt behöver du implementera minst 4 av följande kriterier:
 
@@ -27,21 +27,7 @@ const fs = require("fs");
 
 const port = 4000;
 
-let todos = [
-  //   {
-  //     id: 1,
-  //     todo: "Skapa backend",
-  //     // finished: true
-  //   },
-  //   {
-  //     id: 2,
-  //     todo: "Skapa frontend",
-  //   },
-  //   {
-  //     id: 3,
-  //     todo: "Sätt ihop allt",
-  //   },
-];
+let todos = [];
 
 const app = http.createServer((req, res) => {
   console.log(`${req.method} till url: ${req.url}`);
@@ -81,6 +67,10 @@ const app = http.createServer((req, res) => {
     req.on("data", (chunk) => {
       const replacementTodo = JSON.parse(chunk);
       todos[todoIndex] = replacementTodo;
+      const stringTodos = JSON.stringify(todos);
+      fs.writeFile("./todos.json", stringTodos, (err) => {
+        if (err) throw err;
+      });
     });
     res.end();
   } else if (req.method === "PATCH") {
@@ -96,11 +86,16 @@ const app = http.createServer((req, res) => {
         todo.todo = data.todo;
       }
 
-      //   if (data.finished) {
-      //     todo.finished = data.finished;
-      //   }
+      if (data.done) {
+        todo.done = data.done;
+      }
 
       todos[todoIndex] = todo;
+
+      const stringTodos = JSON.stringify(todos);
+      fs.writeFile("./todos.json", stringTodos, (err) => {
+        if (err) throw err;
+      });
     });
     res.end();
   } else if (req.method === "DELETE") {
@@ -108,13 +103,17 @@ const app = http.createServer((req, res) => {
     res.statusCode = 204;
     const id = parseInt(items[2]);
     todos = todos.filter((todo) => todo.id !== id);
+    const stringTodos = JSON.stringify(todos);
+      fs.writeFile("./todos.json", stringTodos, (err) => {
+        if (err) throw err;
+      });
     res.end();
   }
 });
 
-app.on("error", (e) => {
-  console.log(`problem with request: ${e}`);
-});
+// app.on("error", (e) => {
+//   console.log(`problem with request: ${e}`);
+// });
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

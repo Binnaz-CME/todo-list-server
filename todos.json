@@ -1,1 +1,1 @@
-[{"id":1,"todo":"Skapa backend"},{"id":2,"todo":"Skapa frontend"},{"id":3,"todo":"Sätt ihop allt"},{"id":4,"todo":"Testar post igen"}]
+[{"id":1,"todo":"Skapa backend","done":false},{"id":2000,"todo":"Testar PUT","done":false},{"id":4,"todo":"Testar post igen","done":false}]
