@@ -36,7 +36,8 @@ const app = http.createServer((req, res) => {
   } else if (req.method === "GET" && items.length === 3 && items[2]) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    const todoIndex = parseInt(items[2] - 1);
+    const id = items[2];
+    const todoIndex = todos.findIndex((todo) => todo.id === id);
     res.end(JSON.stringify(todos[todoIndex]));
   } else if (req.method === "POST") {
     res.statusCode = 201;
