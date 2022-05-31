@@ -83,6 +83,10 @@ const app = http.createServer((req, res) => {
         todo.isDone = data.isDone;
       }
 
+      if (data.todo) {
+        todo.todo = data.todo
+      }
+
       todos[todoIndex] = todo;
       const stringTodos = JSON.stringify(todos);
       fs.writeFile("./todos.json", stringTodos, (err) => {
