@@ -59,7 +59,7 @@ const app = http.createServer((req, res) => {
   } else if (req.method === "PUT") {
     res.statusCode = 201;
     res.setHeader("Content-Type", "application/json");
-    const id = parseInt(items[2]);
+    const id = items[2];
     const todoIndex = todos.findIndex((todo) => todo.id === id);
     req.on("data", (chunk) => {
       const replacementTodo = JSON.parse(chunk);
@@ -84,7 +84,7 @@ const app = http.createServer((req, res) => {
       }
 
       if (data.todo) {
-        todo.todo = data.todo
+        todo.todo = data.todo;
       }
 
       todos[todoIndex] = todo;
